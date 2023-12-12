@@ -5,16 +5,23 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.Random;
 
 class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
+
+    // Initialize variables: ball's popsition and velocity.
+    // Paddles' position and size.
+
     private int ballX = 400, ballY = 300, ballVelocityX = 1, ballVelocityY = -1, ballSize = 20;
     private int paddle1X = 350, paddle1Y = 520, paddleHeight = 10, paddleWidth = 120;
     private Timer timer;
     private int scorePlayer1 = 0, life = 3;
 
+    // Initialize the bricks arraylist
+
     ArrayList<Bricks> bricks = new ArrayList<Bricks>();
 
-
+    // Constructor and start timer for the game.
     public BreakoutPanel() {
         timer = new Timer(5, this);
         timer.start();
@@ -23,23 +30,22 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
 
         // Draw bricks with different colors using 2d array, 0 is none, 1 is red, 2 is orange, 3 is yellow, 4 is green, 5 is blue
 
+        // Randomly create some pattern
 
-        int[][] bricks_arr = new int[][]{
-                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-                {0, 1, 1, 1, 1, 1, 1, 1, 1, 0,},
-                {0, 1, 2, 2, 2, 2, 2, 2, 1, 0,},
-                {0, 1, 2, 3, 3, 3, 3, 2, 1, 0,},
-                {0, 1, 2, 3, 4, 4, 3, 2, 1, 0,},
-                {0, 1, 2, 3, 4, 4, 3, 2, 1, 0,},
-                {0, 1, 2, 3, 3, 3, 3, 2, 1, 0,},
-                {0, 1, 2, 2, 2, 2, 2, 2, 1, 0,},
-                {0, 1, 1, 1, 1, 1, 1, 1, 1, 0,},
-                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-                {1, 2, 2, 2, 2, 2, 2, 2, 2, 1,},
-                {1, 2, 3, 3, 3, 3, 3, 3, 2, 1,},
-                {1, 2, 3, 4, 4, 4, 4, 3, 2, 1,},
-        };
+        int rows = 12;
+        int cols = 10;
+        int[][] bricks_arr = new int[rows][cols];
+        Random random = new Random();
 
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                bricks_arr[i][j] = random.nextInt(6); // Generates a random number between 0 and 5
+            }
+        }
+
+
+        // Draw bricks with different colors using 2d array.
+        // 0 is none, 1 is red, 2 is orange, 3 is yellow, 4 is green, 5 is blue
 
         for(int i = 0; i < bricks_arr.length; i++){
             for(int j = 0; j < bricks_arr[i].length; j++){
@@ -103,6 +109,22 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
 
     }
 
+    // end the game when all bricks are gone
+
+    public boolean checkEndGame(){
+        boolean ret = true;
+        for (Bricks brick : bricks) {
+            if (brick.isVisible()) {
+                ret = false;
+                break;
+            }
+        }
+
+        return ret;
+    }
+
+    // Move the ball and check for collisions.
+
     @Override
     public void actionPerformed(ActionEvent e) {
         ballX += ballVelocityX;
@@ -133,6 +155,21 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
                 if (ballRect.intersects(brickRect)) {
                     brick.setVisibility(false);
                     scorePlayer1++;
+
+                    boolean end = checkEndGame();
+
+                    // end the game when all bricks are gone
+
+                    if(end){
+                        timer.stop();
+                        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+                        frame.getContentPane().removeAll();
+                        StartScreenPanel startPanel = new StartScreenPanel(frame);
+                        frame.add(startPanel);
+                        frame.revalidate();
+                        frame.repaint();
+                        startPanel.requestFocusInWindow();
+                    }
 
                     // Calculate the center point of the ball
                     int ballCenterX = ballX + ballSize / 2;
@@ -174,6 +211,8 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
         repaint();
     }
 
+
+    // Reset the ball to the center of the screen if it goes out of bounds.
     private void resetBall() {
         ballX = 400;
         ballY = 300;
@@ -184,6 +223,8 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
     @Override
     public void keyTyped(KeyEvent e) {
     }
+
+    // Move the paddles left and right.
 
     @Override
     public void keyPressed(KeyEvent e) {

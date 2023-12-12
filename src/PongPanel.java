@@ -5,10 +5,16 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 class PongPanel extends JPanel implements ActionListener, KeyListener {
+
+    // Initialize variables: ball's popsition and velocity.
+    // Peddles' position and size.
     private int ballX = 400, ballY = 300, ballVelocityX = 2, ballVelocityY = 2, ballSize = 20;
     private int paddle1Y = 250, paddle2Y = 250, paddleHeight = 100, paddleWidth = 15;
     private Timer timer;
-    private int scorePlayer1 = 0, scorePlayer2 = 0;
+    private int player1life = 3, player2life = 3;
+
+    // Constructor and start timer for the game.
+    // Every 10 milliseconds, the actionPerformed and repaint methods are called.
 
     public PongPanel() {
         timer = new Timer(10, this);
@@ -33,10 +39,12 @@ class PongPanel extends JPanel implements ActionListener, KeyListener {
 
         // Draw score
         g.setFont(new Font("Arial", Font.BOLD, 30));
-        g.drawString("Player 1: " + scorePlayer1, 100, 50);
-        g.drawString("Player 2: " + scorePlayer2, 500, 50);
+        g.drawString("Jonathan: " + player1life, 100, 50);
+        g.drawString("Austin: " + player2life, 500, 50);
     }
 
+
+    // Move the ball and check for collisions.
     @Override
     public void actionPerformed(ActionEvent e) {
         ballX += ballVelocityX;
@@ -52,15 +60,27 @@ class PongPanel extends JPanel implements ActionListener, KeyListener {
         }
 
         if (ballX < 0) {
-            scorePlayer2++;
+            player1life--;
             resetBall();
         } else if (ballX > 780) {
-            scorePlayer1++;
+            player2life--;
             resetBall();
+        }
+
+        if (player1life == 0 || player2life == 0) {
+            timer.stop();
+            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            frame.getContentPane().removeAll();
+            StartScreenPanel startPanel = new StartScreenPanel(frame);
+            frame.add(startPanel);
+            frame.revalidate();
+            frame.repaint();
         }
 
         repaint();
     }
+
+    // Reset the ball to the center of the screen.
 
     private void resetBall() {
         ballX = 400;
@@ -71,6 +91,8 @@ class PongPanel extends JPanel implements ActionListener, KeyListener {
     @Override
     public void keyTyped(KeyEvent e) {
     }
+
+    // Move the paddles up and down.
 
     @Override
     public void keyPressed(KeyEvent e) {

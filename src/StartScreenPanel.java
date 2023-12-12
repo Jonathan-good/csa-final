@@ -3,6 +3,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class StartScreenPanel extends JPanel {
+
+    // This is the constructor for the start screen panel.
+    // It creates two buttons, one for Pong and one for Breakout.
+
     public StartScreenPanel(JFrame frame) {
         JButton pongButton = new JButton("Pong");
         pongButton.addActionListener(new ActionListener() {

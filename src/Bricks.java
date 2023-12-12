@@ -1,6 +1,9 @@
 import java.awt.*;
 
 public class Bricks {
+
+    // Initialize variables: brick's position, size, color, and visibility.
+
     private Color color;
     private int x, y;
     private int width, height;
@@ -14,6 +17,8 @@ public class Bricks {
         this.isVisible = true;
         this.color = color;
     }
+
+    // 7 getters and 1 setter for the variables.
 
     public boolean isVisible() {
         return isVisible;
