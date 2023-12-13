@@ -9,7 +9,7 @@ import java.util.Random;
 
 class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
 
-    // Initialize variables: ball's popsition and velocity.
+    // Initialize variables: ball's position and velocity.
     // Paddles' position and size.
 
     private int ballX = 400, ballY = 300, ballVelocityX = 1, ballVelocityY = -1, ballSize = 20;
@@ -18,10 +18,17 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
     private int scorePlayer1 = 0, life = 3;
 
     // Initialize the bricks arraylist
+    // Bricks' position, size, color, and visibility.
 
     ArrayList<Bricks> bricks = new ArrayList<Bricks>();
 
     // Constructor and start timer for the game.
+    /**
+     * PongPanel constructor
+     * @param frame object
+     * @return void
+     */
+
     public BreakoutPanel() {
         timer = new Timer(5, this);
         timer.start();
@@ -30,7 +37,7 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
 
         // Draw bricks with different colors using 2d array, 0 is none, 1 is red, 2 is orange, 3 is yellow, 4 is green, 5 is blue
 
-        // Randomly create some pattern
+        // Randomly create some pattern of bricks using 2d array and random number generator
 
         int rows = 12;
         int cols = 10;
@@ -46,6 +53,7 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
 
         // Draw bricks with different colors using 2d array.
         // 0 is none, 1 is red, 2 is orange, 3 is yellow, 4 is green, 5 is blue
+        // Add bricks objects to the arraylist
 
         for(int i = 0; i < bricks_arr.length; i++){
             for(int j = 0; j < bricks_arr[i].length; j++){
@@ -72,22 +80,30 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
 
     }
 
+    /**
+     * paintComponent method
+     * @param g Graphics object
+     * @return void
+     * Draws the game, including the paddles, ball, bricks, and score.
+     */
+
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, 800, 600);
 
-        // Draw paddles
+        // Draw paddles with white color and fill the rectangle with x, y, width, and height
         g.setColor(Color.WHITE);
         g.fillRect(paddle1X, paddle1Y, paddleWidth, paddleHeight);
 
         // Draw red line at the button
 
 
-        // Draw ball
+        // Draw ball with white color and fill the oval with x, y, size, and size
         g.fillOval(ballX, ballY, ballSize, ballSize);
 
-        // Draw score
+        // Draw score with red color
+        // Draw life with red color
 
         g.setColor(Color.RED);
         g.fillRect(0, 565, 800, 10);
@@ -98,7 +114,8 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
 
 
 
-
+        // Draw bricks according to the arraylist
+        // If the brick is visible, draw the brick with the color specified in the bricks object
 
         for (Bricks brick : bricks) {
             if (brick.isVisible()) {
@@ -110,6 +127,13 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
     }
 
     // end the game when all bricks are gone
+
+    /**
+     * checkEndGame method
+     * @param none
+     * @return boolean
+     * Checks if all bricks are gone, if so, return true, else return false
+     */
 
     public boolean checkEndGame(){
         boolean ret = true;
@@ -125,22 +149,29 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
 
     // Move the ball and check for collisions.
 
+    /**
+     * actionPerformed method
+     * @param e ActionEvent object
+     * @return void
+     * Move the ball and check for collisions.
+     */
+
     @Override
     public void actionPerformed(ActionEvent e) {
         ballX += ballVelocityX;
         ballY += ballVelocityY;
 
-        // Ball collision with top and bottom
+        // check ball collision with top and bottom
         if (ballY <= 0) {
             ballVelocityY = -ballVelocityY;
         }
 
-        // Ball collision with left and right
+        // check ball collision with left and right
         if (ballX <= 0 || ballX >= 780) {
             ballVelocityX = -ballVelocityX;
         }
 
-        // Ball collision with paddles
+        // check ball collision with paddles, reverse the ball's Y-direction
         if (ballY >= 500 && ballX > paddle1X && ballX < paddle1X + paddleWidth) {
             ballVelocityY = -ballVelocityY;
         }
@@ -156,11 +187,12 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
                     brick.setVisibility(false);
                     scorePlayer1++;
 
-                    boolean end = checkEndGame();
-
                     // end the game when all bricks are gone
 
+                    boolean end = checkEndGame();
+
                     if(end){
+                        // stop the timer and switch to start screen
                         timer.stop();
                         JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
                         frame.getContentPane().removeAll();
@@ -189,7 +221,7 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
 
 
 
-        // losing a life
+        // losing a life if the ball goes out of bounds
         if (ballY > 550) {
             life--;
             resetBall();
@@ -212,7 +244,13 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
     }
 
 
-    // Reset the ball to the center of the screen if it goes out of bounds.
+    /**
+     * resetBall method
+     * @param none
+     * @return void
+     * Reset the ball to the center of the screen if it goes out of bounds.
+     */
+
     private void resetBall() {
         ballX = 400;
         ballY = 300;
@@ -220,11 +258,23 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
         ballVelocityY = -ballVelocityY;
     }
 
+    /**
+     * keyTyped method
+     * @param e KeyEvent object
+     * @return void
+     * Contains nothing, but must be implemented/overridden.
+     */
+
     @Override
     public void keyTyped(KeyEvent e) {
     }
 
-    // Move the paddles left and right.
+    /**
+     * keyPressed method
+     * @param e KeyEvent object
+     * @return void
+     * Move the paddle left and right based on the key pressed by the user.
+     */
 
     @Override
     public void keyPressed(KeyEvent e) {
@@ -234,6 +284,13 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
             paddle1X += 25;
         }
     }
+
+    /**
+     * keyReleased method
+     * @param e KeyEvent object
+     * @return void
+     * Contains nothing, but must be implemented/overridden.
+     */
 
     @Override
     public void keyReleased(KeyEvent e) {
