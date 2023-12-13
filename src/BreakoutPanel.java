@@ -5,15 +5,29 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.Random;
 
 class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
+
+    // Initialize variables: ball's position and velocity.
+    // Paddles' position and size.
+
     private int ballX = 400, ballY = 300, ballVelocityX = 1, ballVelocityY = -1, ballSize = 20;
     private int paddle1X = 350, paddle1Y = 520, paddleHeight = 10, paddleWidth = 120;
     private Timer timer;
     private int scorePlayer1 = 0, life = 3;
 
+    // Initialize the bricks arraylist
+    // Bricks' position, size, color, and visibility.
+
     ArrayList<Bricks> bricks = new ArrayList<Bricks>();
 
+    // Constructor and start timer for the game.
+    /**
+     * PongPanel constructor
+     * @param frame object
+     * @return void
+     */
 
     public BreakoutPanel() {
         timer = new Timer(5, this);
@@ -23,23 +37,23 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
 
         // Draw bricks with different colors using 2d array, 0 is none, 1 is red, 2 is orange, 3 is yellow, 4 is green, 5 is blue
 
+        // Randomly create some pattern of bricks using 2d array and random number generator
 
-        int[][] bricks_arr = new int[][]{
-                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-                {0, 1, 1, 1, 1, 1, 1, 1, 1, 0,},
-                {0, 1, 2, 2, 2, 2, 2, 2, 1, 0,},
-                {0, 1, 2, 3, 3, 3, 3, 2, 1, 0,},
-                {0, 1, 2, 3, 4, 4, 3, 2, 1, 0,},
-                {0, 1, 2, 3, 4, 4, 3, 2, 1, 0,},
-                {0, 1, 2, 3, 3, 3, 3, 2, 1, 0,},
-                {0, 1, 2, 2, 2, 2, 2, 2, 1, 0,},
-                {0, 1, 1, 1, 1, 1, 1, 1, 1, 0,},
-                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-                {1, 2, 2, 2, 2, 2, 2, 2, 2, 1,},
-                {1, 2, 3, 3, 3, 3, 3, 3, 2, 1,},
-                {1, 2, 3, 4, 4, 4, 4, 3, 2, 1,},
-        };
+        int rows = 12;
+        int cols = 10;
+        int[][] bricks_arr = new int[rows][cols];
+        Random random = new Random();
 
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                bricks_arr[i][j] = random.nextInt(6); // Generates a random number between 0 and 5
+            }
+        }
+
+
+        // Draw bricks with different colors using 2d array.
+        // 0 is none, 1 is red, 2 is orange, 3 is yellow, 4 is green, 5 is blue
+        // Add bricks objects to the arraylist
 
         for(int i = 0; i < bricks_arr.length; i++){
             for(int j = 0; j < bricks_arr[i].length; j++){
@@ -66,22 +80,30 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
 
     }
 
+    /**
+     * paintComponent method
+     * @param g Graphics object
+     * @return void
+     * Draws the game, including the paddles, ball, bricks, and score.
+     */
+
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, 800, 600);
 
-        // Draw paddles
+        // Draw paddles with white color and fill the rectangle with x, y, width, and height
         g.setColor(Color.WHITE);
         g.fillRect(paddle1X, paddle1Y, paddleWidth, paddleHeight);
 
         // Draw red line at the button
 
 
-        // Draw ball
+        // Draw ball with white color and fill the oval with x, y, size, and size
         g.fillOval(ballX, ballY, ballSize, ballSize);
 
-        // Draw score
+        // Draw score with red color
+        // Draw life with red color
 
         g.setColor(Color.RED);
         g.fillRect(0, 565, 800, 10);
@@ -92,7 +114,8 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
 
 
 
-
+        // Draw bricks according to the arraylist
+        // If the brick is visible, draw the brick with the color specified in the bricks object
 
         for (Bricks brick : bricks) {
             if (brick.isVisible()) {
@@ -103,22 +126,52 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
 
     }
 
+    // end the game when all bricks are gone
+
+    /**
+     * checkEndGame method
+     * @param none
+     * @return boolean
+     * Checks if all bricks are gone, if so, return true, else return false
+     */
+
+    public boolean checkEndGame(){
+        boolean ret = true;
+        for (Bricks brick : bricks) {
+            if (brick.isVisible()) {
+                ret = false;
+                break;
+            }
+        }
+
+        return ret;
+    }
+
+    // Move the ball and check for collisions.
+
+    /**
+     * actionPerformed method
+     * @param e ActionEvent object
+     * @return void
+     * Move the ball and check for collisions.
+     */
+
     @Override
     public void actionPerformed(ActionEvent e) {
         ballX += ballVelocityX;
         ballY += ballVelocityY;
 
-        // Ball collision with top and bottom
+        // check ball collision with top and bottom
         if (ballY <= 0) {
             ballVelocityY = -ballVelocityY;
         }
 
-        // Ball collision with left and right
+        // check ball collision with left and right
         if (ballX <= 0 || ballX >= 780) {
             ballVelocityX = -ballVelocityX;
         }
 
-        // Ball collision with paddles
+        // check ball collision with paddles, reverse the ball's Y-direction
         if (ballY >= 500 && ballX > paddle1X && ballX < paddle1X + paddleWidth) {
             ballVelocityY = -ballVelocityY;
         }
@@ -133,6 +186,22 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
                 if (ballRect.intersects(brickRect)) {
                     brick.setVisibility(false);
                     scorePlayer1++;
+
+                    // end the game when all bricks are gone
+
+                    boolean end = checkEndGame();
+
+                    if(end){
+                        // stop the timer and switch to start screen
+                        timer.stop();
+                        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+                        frame.getContentPane().removeAll();
+                        StartScreenPanel startPanel = new StartScreenPanel(frame);
+                        frame.add(startPanel);
+                        frame.revalidate();
+                        frame.repaint();
+                        startPanel.requestFocusInWindow();
+                    }
 
                     // Calculate the center point of the ball
                     int ballCenterX = ballX + ballSize / 2;
@@ -152,7 +221,7 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
 
 
 
-        // losing a life
+        // losing a life if the ball goes out of bounds
         if (ballY > 550) {
             life--;
             resetBall();
@@ -174,6 +243,14 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
         repaint();
     }
 
+
+    /**
+     * resetBall method
+     * @param none
+     * @return void
+     * Reset the ball to the center of the screen if it goes out of bounds.
+     */
+
     private void resetBall() {
         ballX = 400;
         ballY = 300;
@@ -181,9 +258,23 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
         ballVelocityY = -ballVelocityY;
     }
 
+    /**
+     * keyTyped method
+     * @param e KeyEvent object
+     * @return void
+     * Contains nothing, but must be implemented/overridden.
+     */
+
     @Override
     public void keyTyped(KeyEvent e) {
     }
+
+    /**
+     * keyPressed method
+     * @param e KeyEvent object
+     * @return void
+     * Move the paddle left and right based on the key pressed by the user.
+     */
 
     @Override
     public void keyPressed(KeyEvent e) {
@@ -193,6 +284,13 @@ class BreakoutPanel extends JPanel implements ActionListener, KeyListener {
             paddle1X += 25;
         }
     }
+
+    /**
+     * keyReleased method
+     * @param e KeyEvent object
+     * @return void
+     * Contains nothing, but must be implemented/overridden.
+     */
 
     @Override
     public void keyReleased(KeyEvent e) {
